@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 formRefs.addEventListener('submit', event => {
     event.preventDefault();
     if(!formData.email || !formData.message) {
-        alert('feedback-form-state');
+        alert('Fill please all fields');
     return;
     }
     console.log(formData);
