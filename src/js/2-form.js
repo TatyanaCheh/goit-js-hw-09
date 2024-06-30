@@ -3,7 +3,7 @@ const STORAGE_KEY = 'feedback-form-state';
 
 
 const formRefs = document.querySelector('.feedback-form');
-const formInput = document.querySelector('input[name="email"]');
+const formInput = document.querySelector('input[type="email"]');
 const formMessage = document.querySelector('textarea[name="message"]');
 
 //об'єкт для збереження даних форми
@@ -12,49 +12,48 @@ const formData = {
     message: '',
 };
 
-const saveToLocalStorage = (key, value) => {
-    localStorage.setItem(key, JSON.stringify(value));
-}
-
-//f для отримання данних з localStorage
-const loadFromLS = key => {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : null;
-};
-// оновлення значень полів форми
-const updateForm = () => {
-    formInput.value = formData.email;
-    formMessage.value = formData.message;
-};
-
 // відстеження події input на формі
-formRefs.addEventListener('input', event => {
-    const {name, value} = event.target;
-    formData[name] = value.trim();
+formRefs.addEventListener('input', () => {
+    const email = formInput.value.trim();
+    const message = formMessage.value.trim();
+    const formData = { email, message };
     saveToLocalStorage(STORAGE_KEY, formData);
 });
 
 
 // завантаження даних з LS при завантаженні сторінки
-document.addEventListener('DOMContentLoaded', () => {
-    const saveData = loadFromLS(STORAGE_KEY);
-    if(saveData) {
-        formData.email = saveData.email || '';
-        formData.message = saveData.message || '';
-        updateForm();
-    }
+window.addEventListener('DOMContentLoaded', () => {
+    const data = loadFromLS(STORAGE_KEY);
+    formInput.value = data?.email || '';
+    formMessage.value = data?.message || '';
 });
 
 formRefs.addEventListener('submit', event => {
     event.preventDefault();
-    if(!formData.email || !formData.message) {
+    const email = formInput.value.trim();
+    const message = formMessage.value.trim();
+    if(email !== '' && message !=='') {
+        const formData = {  email, message};
+        console.log(formData);
+        formRefs.reset();
+        localStorage.removeItem(STORAGE_KEY);
+    }else {
         alert('Fill please all fields');
-    return;
     }
-    console.log(formData);
-    localStorage.removeItem(STORAGE_KEY);
-    formData.email = '';
-    formData.message = '';
-    formRefs.requestFullscreen();
+    });
+    function saveToLocalStorage(key, value) {
+        const jsonData = JSON.stringify(value);
+        localStorage.setItem(key, jsonData);
+    }
+     function loadFromLS(key) {
+        const json = localStorage.getItem(key);
+        try {
+            const data = JSON.parse(json);
+            return data;
+        } catch {
+            return json;
+        }
+        
+    };
 
-});
+    
